@@ -240,3 +240,35 @@ def yearly_forecast(year: int = 2026, city: str = "Delhi"):
         })
 
     return {"forecast": forecasts}
+
+@app.get("/api/historical-cases")
+def historical_cases(state: str = None):
+    """Fetch historical dengue cases and deaths from Kaggle dataset."""
+    try:
+        csv_path = "/Users/darshana/.cache/kagglehub/datasets/jadhavpranav/dengue-cases-in-india/versions/1/dengue_cases_in_india.csv"
+        df = pd.read_csv(csv_path)
+
+        if state and state != "All":
+            df = df[df["States"].str.lower() == state.lower()]
+            if df.empty:
+                 raise HTTPException(status_code=404, detail="State not found")
+
+        years = ["2019", "2020", "2021", "2022", "2023", "2024"]
+        timeseries = []
+
+        for year in years:
+            cases_col = f"{year}_Cases" if year != "2024" else "2024*_Cases"
+            deaths_col = f"{year}_Deaths" if year != "2024" else "2024*_Deaths"
+
+            total_cases = pd.to_numeric(df[cases_col], errors='coerce').fillna(0).sum() if cases_col in df.columns else 0
+            total_deaths = pd.to_numeric(df[deaths_col], errors='coerce').fillna(0).sum() if deaths_col in df.columns else 0
+
+            timeseries.append({
+                "year": year,
+                "cases": int(total_cases),
+                "deaths": int(total_deaths)
+            })
+
+        return {"historical_data": timeseries}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error reading dataset: {str(e)}")

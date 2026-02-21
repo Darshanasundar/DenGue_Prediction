@@ -3,6 +3,7 @@ import axios from 'axios';
 import SummaryCards from './SummaryCards';
 import PredictionForm from './PredictionForm';
 import YearlyForecast from './YearlyForecast';
+import HistoricalData from './HistoricalData';
 import LocationModal from './LocationModal';
 import { MapPin } from 'lucide-react';
 
@@ -92,6 +93,7 @@ const Dashboard = () => {
 
             <YearlyForecast data={yearlyForecasts} selectedYear={selectedYear} onYearChange={setSelectedYear} selectedCity={selectedYearCity} onCityChange={setSelectedYearCity} />
 
+            <HistoricalData />
 
             <LocationModal
                 isOpen={isLocationModalOpen}
