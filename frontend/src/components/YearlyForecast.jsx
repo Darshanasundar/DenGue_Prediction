@@ -31,7 +31,12 @@ const YearlyForecast = ({ data, selectedYear, onYearChange, selectedCity, onCity
 
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 7 }, (_, i) => currentYear - 2 + i);
-    const cities = ["Delhi", "Mumbai", "Chennai", "Kolkata", "Bangalore", "Hyderabad", "Pune", "Ahmedabad", "Jaipur", "Lucknow"];
+    const cities = [
+        "Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai",
+        "Dehradun", "Delhi", "Faridabad", "Ghaziabad", "Guwahati", "Hyderabad", "Indore", "Jaipur", "Kanpur",
+        "Kochi", "Kolkata", "Lucknow", "Ludhiana", "Meerut", "Mumbai", "Nagpur", "Nashik", "Patna", "Pune",
+        "Rajkot", "Shimla", "Srinagar", "Surat", "Thane", "Thiruvananthapuram", "Vadodara", "Varanasi", "Visakhapatnam"
+    ];
 
     // Format data for the chart mapping risk levels to numeric values for AreaChart visualization
     const chartData = data.map(item => {

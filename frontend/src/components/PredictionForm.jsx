@@ -8,7 +8,12 @@ const PredictionForm = ({ onPredictionUpdate }) => {
         month: new Date().getMonth() + 1,
     });
 
-    const cities = ["Delhi", "Mumbai", "Chennai", "Kolkata", "Bangalore", "Hyderabad", "Pune", "Ahmedabad", "Jaipur", "Lucknow"];
+    const cities = [
+        "Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai",
+        "Dehradun", "Delhi", "Faridabad", "Ghaziabad", "Guwahati", "Hyderabad", "Indore", "Jaipur", "Kanpur",
+        "Kochi", "Kolkata", "Lucknow", "Ludhiana", "Meerut", "Mumbai", "Nagpur", "Nashik", "Patna", "Pune",
+        "Rajkot", "Shimla", "Srinagar", "Surat", "Thane", "Thiruvananthapuram", "Vadodara", "Varanasi", "Visakhapatnam"
+    ];
     const months = [
         { value: 1, label: 'January' }, { value: 2, label: 'February' },
         { value: 3, label: 'March' }, { value: 4, label: 'April' },
