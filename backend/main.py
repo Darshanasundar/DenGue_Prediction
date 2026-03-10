@@ -1,5 +1,7 @@
 import random
+import uvicorn
 from datetime import datetime
+from typing import Optional
 
 import joblib
 import pandas as pd
@@ -30,7 +32,7 @@ OWM_API_KEY = "ebb418abb7b100805e6e3bf26bd5a483"
 OWM_BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 
-def fetch_owm_weather(city: str) -> dict | None:
+def fetch_owm_weather(city: str) -> Optional[dict]:
     """Fetch real-time weather from OpenWeatherMap. Returns None on failure."""
     try:
         resp = requests.get(
@@ -38,7 +40,8 @@ def fetch_owm_weather(city: str) -> dict | None:
             params={
                 "q": f"{city},IN",
                 "appid": OWM_API_KEY,
-                "units": "metric"},
+                "units": "metric",
+            },
             timeout=5,
         )
         resp.raise_for_status()
@@ -55,7 +58,7 @@ def fetch_owm_weather(city: str) -> dict | None:
 
 
 # ---------- City Weather Profiles ----------
-CITY_PROFILES: dict[str, dict[str, int]] = {
+CITY_PROFILES: dict = {
     "Agra": {"temp_base": 25, "hum_base": 50, "rain_base": 15},
     "Ahmedabad": {"temp_base": 29, "hum_base": 55, "rain_base": 15},
     "Amritsar": {"temp_base": 23, "hum_base": 50, "rain_base": 10},
@@ -66,6 +69,7 @@ CITY_PROFILES: dict[str, dict[str, int]] = {
     "Chennai": {"temp_base": 30, "hum_base": 70, "rain_base": 40},
     "Dehradun": {"temp_base": 21, "hum_base": 60, "rain_base": 40},
     "Delhi": {"temp_base": 25, "hum_base": 50, "rain_base": 15},
+    "Erode": {"temp_base": 29, "hum_base": 65, "rain_base": 30},
     "Faridabad": {"temp_base": 25, "hum_base": 50, "rain_base": 15},
     "Ghaziabad": {"temp_base": 25, "hum_base": 50, "rain_base": 15},
     "Guwahati": {"temp_base": 25, "hum_base": 75, "rain_base": 60},
@@ -95,8 +99,7 @@ CITY_PROFILES: dict[str, dict[str, int]] = {
 }
 
 
-def weather_for_city_month(
-        city: str, month: int) -> tuple[float, float, float]:
+def weather_for_city_month(city: str, month: int) -> tuple:
     """Return (temp, humidity, rainfall) estimates for a city and month."""
     p = CITY_PROFILES.get(city, CITY_PROFILES["Delhi"])
     temp: float = float(p["temp_base"])
@@ -122,14 +125,14 @@ def risk_color(level: str) -> str:
     return {
         "Low": "green",
         "Moderate": "yellow",
-        "High": "red"}.get(
-        level,
-        "gray")
+        "High": "red",
+    }.get(level, "gray")
 
 
-def ml_predict(temp: float, hum: float, rain: float,
-               month: int) -> tuple[str, float]:
+def ml_predict(temp: float, hum: float, rain: float, month: int) -> tuple:
     """Run the ML model and return (risk_level, confidence_pct)."""
+    if model is None:
+        return "Unknown", 0.0
     features = pd.DataFrame([{
         "Temperature": temp,
         "Humidity": hum,
@@ -141,15 +144,15 @@ def ml_predict(temp: float, hum: float, rain: float,
     confidence = round(float(max(probs)) * 100, 2)
     return level, confidence
 
-# ---------- Pydantic Models ----------
 
+# ---------- Pydantic Models ----------
 
 class CityMonthInput(BaseModel):
     city: str
     month: int
 
-# ---------- Endpoints ----------
 
+# ---------- Endpoints ----------
 
 @app.get("/api/live-weather")
 def live_weather(city: str):
@@ -175,7 +178,7 @@ def live_weather(city: str):
         weather["temperature"],
         weather["humidity"],
         weather["rainfall"],
-        current_month
+        current_month,
     )
     return {
         **weather,
@@ -189,10 +192,7 @@ def live_weather(city: str):
 
 @app.post("/api/predict-city")
 def predict_by_city(data: CityMonthInput):
-    """
-    Predict dengue risk for a given Indian city and month
-    using seasonal profiles.
-    """
+    """Predict dengue risk for a given Indian city and month using seasonal profiles."""
     if model is None:
         raise HTTPException(status_code=500, detail="ML model not loaded")
 
@@ -222,10 +222,7 @@ def yearly_forecast(year: int = 2026, city: str = "Delhi"):
         r = max(0.0, r_base + (random.uniform(-15, 20)
                 if r_base > 10 else random.uniform(0, 5)))
 
-        if model:
-            level, conf = ml_predict(t, h, r, idx)
-        else:
-            level, conf = "Unknown", 0.0
+        level, conf = ml_predict(t, h, r, idx)
 
         forecasts.append({
             "month": name,
@@ -241,8 +238,9 @@ def yearly_forecast(year: int = 2026, city: str = "Delhi"):
 
     return {"forecast": forecasts}
 
+
 @app.get("/api/historical-cases")
-def historical_cases(state: str = None):
+def historical_cases(state: Optional[str] = None):
     """Fetch historical dengue cases and deaths from Kaggle dataset."""
     try:
         csv_path = "/Users/darshana/.cache/kagglehub/datasets/jadhavpranav/dengue-cases-in-india/versions/1/dengue_cases_in_india.csv"
@@ -251,7 +249,7 @@ def historical_cases(state: str = None):
         if state and state != "All":
             df = df[df["States"].str.lower() == state.lower()]
             if df.empty:
-                 raise HTTPException(status_code=404, detail="State not found")
+                raise HTTPException(status_code=404, detail="State not found")
 
         years = ["2019", "2020", "2021", "2022", "2023", "2024"]
         timeseries = []
@@ -260,15 +258,21 @@ def historical_cases(state: str = None):
             cases_col = f"{year}_Cases" if year != "2024" else "2024*_Cases"
             deaths_col = f"{year}_Deaths" if year != "2024" else "2024*_Deaths"
 
-            total_cases = pd.to_numeric(df[cases_col], errors='coerce').fillna(0).sum() if cases_col in df.columns else 0
-            total_deaths = pd.to_numeric(df[deaths_col], errors='coerce').fillna(0).sum() if deaths_col in df.columns else 0
+            total_cases = pd.to_numeric(df[cases_col], errors="coerce").fillna(0).sum() if cases_col in df.columns else 0
+            total_deaths = pd.to_numeric(df[deaths_col], errors="coerce").fillna(0).sum() if deaths_col in df.columns else 0
 
             timeseries.append({
                 "year": year,
                 "cases": int(total_cases),
-                "deaths": int(total_deaths)
+                "deaths": int(total_deaths),
             })
 
         return {"historical_data": timeseries}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading dataset: {str(e)}")
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

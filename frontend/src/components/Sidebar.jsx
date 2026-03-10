@@ -1,9 +1,10 @@
-import { Home, Info, ThermometerSun } from 'lucide-react';
+import { Home, Info, ThermometerSun, Bot } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
     const navItems = [
         { name: 'Dashboard', icon: Home, path: '/' },
+        { name: 'AI Expert', icon: Bot, path: '/chat' },
     ];
 
     return (

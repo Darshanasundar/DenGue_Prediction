@@ -10,7 +10,7 @@ const PredictionForm = ({ onPredictionUpdate }) => {
 
     const cities = [
         "Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai",
-        "Dehradun", "Delhi", "Faridabad", "Ghaziabad", "Guwahati", "Hyderabad", "Indore", "Jaipur", "Kanpur",
+        "Dehradun", "Delhi", "Erode", "Faridabad", "Ghaziabad", "Guwahati", "Hyderabad", "Indore", "Jaipur", "Kanpur",
         "Kochi", "Kolkata", "Lucknow", "Ludhiana", "Meerut", "Mumbai", "Nagpur", "Nashik", "Patna", "Pune",
         "Rajkot", "Shimla", "Srinagar", "Surat", "Thane", "Thiruvananthapuram", "Vadodara", "Varanasi", "Visakhapatnam"
     ];

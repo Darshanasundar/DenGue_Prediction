@@ -33,7 +33,7 @@ const YearlyForecast = ({ data, selectedYear, onYearChange, selectedCity, onCity
     const years = Array.from({ length: 7 }, (_, i) => currentYear - 2 + i);
     const cities = [
         "Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai",
-        "Dehradun", "Delhi", "Faridabad", "Ghaziabad", "Guwahati", "Hyderabad", "Indore", "Jaipur", "Kanpur",
+        "Dehradun", "Delhi", "Erode", "Faridabad", "Ghaziabad", "Guwahati", "Hyderabad", "Indore", "Jaipur", "Kanpur",
         "Kochi", "Kolkata", "Lucknow", "Ludhiana", "Meerut", "Mumbai", "Nagpur", "Nashik", "Patna", "Pune",
         "Rajkot", "Shimla", "Srinagar", "Surat", "Thane", "Thiruvananthapuram", "Vadodara", "Varanasi", "Visakhapatnam"
     ];
