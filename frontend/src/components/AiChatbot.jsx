@@ -20,10 +20,22 @@ const KNOWLEDGE_BASE = [
         ]
     },
     {
-        intent: 'symptoms',
-        keywords: ['symptom', 'signs', 'how to know if', 'feeling sick', 'fever', 'headache', 'joint pain', 'rash', 'vomiting', 'nausea'],
+        intent: 'symptoms_info',
+        keywords: ['symptoms of', 'signs of', 'what are the symptoms', 'what are symptoms', 'know if i have', 'how to know'],
         responses: [
             "Common symptoms of Dengue include:\n• Sudden high fever (up to 104°F/40°C)\n• Severe headache\n• Pain behind the eyes\n• Severe joint and muscle pain\n• Fatigue, nausea, and vomiting\n• Skin rash (appears 2-5 days after onset of fever)\n\nIf you experience severe abdominal pain, persistent vomiting, rapid breathing, or bleeding, seek medical attention immediately, as these are warning signs of severe dengue."
+        ]
+    },
+    {
+        intent: 'user_has_symptoms',
+        keywords: [
+            'i have', 'i am feeling', 'i got', 'suffering from', 'experiencing',
+            'fever', 'headache', 'pain', 'vomiting', 'nausea', 'rash',
+            'days', 'sick', 'is it dengue', 'could it be dengue', 'do i have dengue'
+        ],
+        // Special logic: high weight for matching multiple user symptoms
+        responses: [
+            "Based on what you're describing (like fever and headache), these **could** be early signs of Dengue, especially if you live in or have visited a high-risk area recently. \n\n**However, I am an AI, not a doctor.** \n\nPlease monitor your temperature, stay highly hydrated (water, ORS, coconut water), and avoid aspirin/ibuprofen (use paracetamol instead). If these symptoms persist for more than 2 days or if you experience severe abdominal pain, vomiting, or bleeding, please visit a doctor or hospital immediately for a blood test (NS1 antigen or Dengue antibodies)."
         ]
     },
     {
@@ -123,12 +135,27 @@ const AiChatbot = () => {
 
         for (const kb of KNOWLEDGE_BASE) {
             let score = 0;
+            let matchedKeywords = [];
             for (const keyword of kb.keywords) {
                 if (lowerText.includes(keyword)) {
                     // Give more weight to longer multi-word keywords
-                    score += keyword.includes(' ') ? 2 : 1;
+                    score += keyword.includes(' ') ? 3 : 1;
+                    matchedKeywords.push(keyword);
                 }
             }
+
+            // Special boost for user describing personal symptoms
+            if (kb.intent === 'user_has_symptoms' &&
+                (matchedKeywords.includes('i have') || matchedKeywords.includes('i am feeling') || matchedKeywords.includes('is it dengue')) &&
+                (matchedKeywords.includes('fever') || matchedKeywords.includes('headache') || matchedKeywords.includes('pain') || matchedKeywords.includes('days'))) {
+                score += 10; // Massive boost if they combine "I have" with actual symptoms
+            }
+
+            // High boost if asking explicitly "what are symptoms"
+            if (kb.intent === 'symptoms_info' && (matchedKeywords.includes('symptoms of') || matchedKeywords.includes('what are symptoms'))) {
+                score += 5;
+            }
+
             if (score > maxScore) {
                 maxScore = score;
                 bestMatch = kb;
