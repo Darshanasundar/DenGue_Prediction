@@ -67,6 +67,20 @@ const KNOWLEDGE_BASE = [
         responses: [
             "India experiences significant Dengue outbreaks. Our dashboard visualizes historical data from 2019 to 2024. Certain states often report high numbers due to a combination of dense populations, rapid urbanization, and conducive tropical climates. You can view the specific state-wise breakdowns and yearly trends in the Historical Data section of the dashboard."
         ]
+    },
+    {
+        intent: 'diet',
+        keywords: ['eat', 'food', 'diet', 'drink', 'papaya', 'coconut', 'nutrition', 'meals', 'hungry', 'thirst'],
+        responses: [
+            "A proper diet is crucial during Dengue recovery. Drink plenty of fluids like water, coconut water, ORS, and fresh fruit juices (without added sugar) to stay hydrated. Foods rich in Vitamin C (like citrus fruits and amla) help build immunity. Papaya leaf extract is known to help improve platelet counts, though hydration remains the most critical factor. Avoid oily, spicy, and heavily processed foods."
+        ]
+    },
+    {
+        intent: 'emergency',
+        keywords: ['emergency', 'ambulance', 'hospital', 'doctor', 'help', 'urgent', 'severe', 'call', 'number'],
+        responses: [
+            "If you or someone else is experiencing severe symptoms (like severe abdominal pain, persistent vomiting, mucosal bleeding, lethargy, or restlessness), seek immediate medical attention.\n\n**National Emergency Number in India: 112**\n**Ambulance Service: 108**\n\nPlease do not wait if you notice any of these warning signs."
+        ]
     }
 ];
 
@@ -78,8 +92,16 @@ const FALLBACK_RESPONSES = [
 ];
 
 const AiChatbot = () => {
+    // Dynamic Greeting based on time
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return "Good morning";
+        if (hour < 18) return "Good afternoon";
+        return "Good evening";
+    };
+
     const [messages, setMessages] = useState([
-        { id: 1, text: "Welcome! I am DengueAI. Ask me anything about Dengue fever, its symptoms, prevention, or how our predictive model uses weather data to forecast risks.", sender: 'bot', timestamp: new Date() }
+        { id: 1, text: `${getGreeting()}! I am DengueAI. Ask me anything about Dengue fever, its symptoms, prevention, diet tips, or how our predictive model uses weather data to forecast risks.`, sender: 'bot', timestamp: new Date() }
     ]);
     const [inputValue, setInputValue] = useState("");
     const [isTyping, setIsTyping] = useState(false);
@@ -217,8 +239,8 @@ const AiChatbot = () => {
                         </div>
                         <div
                             className={`p-3 rounded-2xl ${msg.sender === 'user'
-                                    ? 'bg-indigo-600 text-white rounded-tr-sm shadow-md shadow-indigo-900/20'
-                                    : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm shadow-md shadow-black/20'
+                                ? 'bg-indigo-600 text-white rounded-tr-sm shadow-md shadow-indigo-900/20'
+                                : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm shadow-md shadow-black/20'
                                 }`}
                         >
                             <div className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -248,13 +270,14 @@ const AiChatbot = () => {
 
             {/* Input Area */}
             <div className="p-4 border-t border-white/5 bg-slate-900/50">
-                <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
-                    <button onClick={() => setInputValue("What are the symptoms of Dengue?")} className="whitespace-nowrap px-3 py-1.5 bg-slate-800 hover:bg-indigo-900/50 border border-slate-700 rounded-full text-xs text-indigo-200 transition-colors">Symptoms?</button>
-                    <button onClick={() => setInputValue("How does the prediction model work?")} className="whitespace-nowrap px-3 py-1.5 bg-slate-800 hover:bg-indigo-900/50 border border-slate-700 rounded-full text-xs text-indigo-200 transition-colors">How prediction works?</button>
-                    <button onClick={() => setInputValue("How to prevent Dengue?")} className="whitespace-nowrap px-3 py-1.5 bg-slate-800 hover:bg-indigo-900/50 border border-slate-700 rounded-full text-xs text-indigo-200 transition-colors">Prevention tips</button>
-                    <button onClick={() => setInputValue("When is Dengue season in India?")} className="whitespace-nowrap px-3 py-1.5 bg-slate-800 hover:bg-indigo-900/50 border border-slate-700 rounded-full text-xs text-indigo-200 transition-colors">Peak seasons?</button>
+                <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide py-1">
+                    <button onClick={() => setInputValue("What are the symptoms of Dengue?")} className="whitespace-nowrap px-4 py-2 bg-slate-800/80 hover:bg-indigo-600/50 hover:text-white hover:border-indigo-400 border border-slate-700/50 rounded-full text-xs font-medium text-indigo-300 transition-all shadow-sm">Symptoms?</button>
+                    <button onClick={() => setInputValue("What should I eat during Dengue?")} className="whitespace-nowrap px-4 py-2 bg-slate-800/80 hover:bg-emerald-600/50 hover:text-white hover:border-emerald-400 border border-slate-700/50 rounded-full text-xs font-medium text-emerald-300 transition-all shadow-sm">Diet guide</button>
+                    <button onClick={() => setInputValue("How to prevent Dengue?")} className="whitespace-nowrap px-4 py-2 bg-slate-800/80 hover:bg-amber-600/50 hover:text-white hover:border-amber-400 border border-slate-700/50 rounded-full text-xs font-medium text-amber-300 transition-all shadow-sm">Prevention tips</button>
+                    <button onClick={() => setInputValue("How does the prediction model work?")} className="whitespace-nowrap px-4 py-2 bg-slate-800/80 hover:bg-blue-600/50 hover:text-white hover:border-blue-400 border border-slate-700/50 rounded-full text-xs font-medium text-blue-300 transition-all shadow-sm">Prediction tech</button>
+                    <button onClick={() => setInputValue("Emergency contacts")} className="whitespace-nowrap px-4 py-2 bg-slate-800/80 hover:bg-red-600/50 hover:text-white hover:border-red-400 border border-slate-700/50 rounded-full text-xs font-medium text-red-300 transition-all shadow-sm">Emergencies</button>
                 </div>
-                <form onSubmit={handleSendMessage} className="relative flex items-center">
+                <form onSubmit={handleSendMessage} className="relative flex items-center mt-1">
                     <input
                         type="text"
                         value={inputValue}
@@ -266,8 +289,8 @@ const AiChatbot = () => {
                         type="submit"
                         disabled={!inputValue.trim() || isTyping}
                         className={`absolute right-2 p-2 rounded-lg transition-all ${inputValue.trim() && !isTyping
-                                ? 'bg-indigo-600 text-white hover:bg-indigo-500 hover:scale-105'
-                                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                            ? 'bg-indigo-600 text-white hover:bg-indigo-500 hover:scale-105'
+                            : 'bg-slate-700 text-slate-500 cursor-not-allowed'
                             }`}
                     >
                         <Send className="w-5 h-5" />
