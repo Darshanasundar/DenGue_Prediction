@@ -1,24 +1,28 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './ThemeContext';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
-import AiChatbot from './components/AiChatbot';
+import ChoroplethMap from './components/ChoroplethMap';
+import CorrelationCharts from './components/CorrelationCharts';
 
 function App() {
   return (
-    <Router>
-      <div className="flex h-screen bg-background overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto w-full">
-          <div className="container mx-auto px-6 py-8 h-full">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/chat" element={<AiChatbot />} />
-              {/* Future routes can be added here */}
-            </Routes>
-          </div>
-        </main>
-      </div>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <div className="flex h-screen overflow-hidden">
+          <Sidebar />
+          <main className="flex-1 overflow-y-auto w-full">
+            <div className="mx-auto px-6 py-8 h-full max-w-7xl">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/map" element={<ChoroplethMap />} />
+                <Route path="/analytics" element={<CorrelationCharts />} />
+              </Routes>
+            </div>
+          </main>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 
