@@ -18,7 +18,8 @@ const IndiaHeatmap = () => {
     const [month, setMonth] = useState(null);
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/city-risk-map')
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        axios.get(`${API_BASE_URL}/api/city-risk-map`)
             .then(({ data }) => { setCities(data.cities); setMonth(data.month); })
             .catch(console.error)
             .finally(() => setLoading(false));

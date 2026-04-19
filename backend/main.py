@@ -1,5 +1,6 @@
 import random
 import uvicorn
+import os
 from datetime import datetime
 from typing import Optional
 
@@ -463,4 +464,7 @@ def export_csv(city: str = "Delhi", year: int = 2026):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    # In production (when PORT is set), it's safer to disable reload
+    reload = os.environ.get("PORT") is None
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=reload)

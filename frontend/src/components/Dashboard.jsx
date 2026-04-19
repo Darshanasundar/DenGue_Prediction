@@ -88,9 +88,10 @@ const Dashboard = () => {
 
     useEffect(() => {
         if (!userCity) return;
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
         const apiCall = userCoords 
-            ? axios.get(`http://localhost:8000/api/live-location?lat=${userCoords.lat}&lon=${userCoords.lon}`)
-            : axios.get(`http://localhost:8000/api/live-weather?city=${userCity}`);
+            ? axios.get(`${API_BASE_URL}/api/live-location?lat=${userCoords.lat}&lon=${userCoords.lon}`)
+            : axios.get(`${API_BASE_URL}/api/live-weather?city=${userCity}`);
             
         apiCall
             .then(({ data: d }) => {
@@ -101,7 +102,8 @@ const Dashboard = () => {
     }, [userCity, userCoords]);
 
     useEffect(() => {
-        axios.get(`http://localhost:8000/api/yearly-forecast?year=${selectedYear}&city=${selectedYearCity}`)
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        axios.get(`${API_BASE_URL}/api/yearly-forecast?year=${selectedYear}&city=${selectedYearCity}`)
             .then(({ data }) => setYearlyForecasts(data.forecast)).catch(console.error);
     }, [selectedYear, selectedYearCity]);
 

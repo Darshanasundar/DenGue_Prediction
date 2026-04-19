@@ -21,7 +21,8 @@ const PredictionForm = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:8000/api/predict-city', { city, month });
+            const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+            const res = await axios.post(`${API_BASE_URL}/api/predict-city`, { city, month });
             setResult(res.data);
         } catch (err) { console.error(err); }
         finally { setLoading(false); }
